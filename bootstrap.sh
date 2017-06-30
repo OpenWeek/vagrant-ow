@@ -23,9 +23,9 @@ inginious-install webapp
 mkdir -p /vagrant/syllabus/ && cd /vagrant/syllabus
 git clone https://github.com/OpenWeek/java-syllabus-pages.git
 git clone https://github.com/OpenWeek/interactive-syllabus.git
-ln -s java-syllabus-page/pages interactive-syllabus/syllabus/
+ln -s /vagrant/java-syllabus-page/pages /vagrant/interactive-syllabus/syllabus/
 cp java-syllabus-pages/cours_inginious/configuration.yaml /vagrant/inginious/
-ln -s java-syllabus-pages/cours_inginious/tutorial /vagrant/inginious
+ln -s /vagrant/java-syllabus-pages/cours_inginious/tutorial /vagrant/inginious
 
 cd /vagrant/inginious
 
