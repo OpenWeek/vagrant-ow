@@ -313,7 +313,7 @@ class Installer(object, metaclass=abc.ABCMeta):
 
         if os.path.exists(task_directory):
             self._display_question("Demonstration tasks can be downloaded to let you discover INGInious.")
-            if self._ask_boolean("Would you like to download them ?", True):
+            if self._ask_boolean("Would you like to download them ?", False):
                 try:
                     filename, _ = urllib.request.urlretrieve("https://api.github.com/repos/UCL-INGI/INGInious-demo-tasks/tarball")
                     with tarfile.open(filename, mode="r:gz") as thetarfile:
@@ -407,4 +407,3 @@ class Installer(object, metaclass=abc.ABCMeta):
                                                        True)
 
         return options
-
