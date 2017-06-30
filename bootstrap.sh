@@ -11,6 +11,8 @@ systemctl enable docker
 
 pip3 install --upgrade pip
 
+pip3 install flask
+
 pip3 install --upgrade git+https://github.com/fthuin/INGInious
 
 # Changing inginious configuration file for webapp
@@ -23,10 +25,14 @@ inginious-install webapp
 mkdir -p /vagrant/syllabus/ && cd /vagrant/syllabus
 git clone https://github.com/OpenWeek/java-syllabus-pages.git
 git clone https://github.com/OpenWeek/interactive-syllabus.git
-ln -s /vagrant/java-syllabus-page/pages /vagrant/interactive-syllabus/syllabus/
-cp java-syllabus-pages/cours_inginious/configuration.yaml /vagrant/inginious/
-ln -s /vagrant/java-syllabus-pages/cours_inginious/tutorial /vagrant/inginious
+ln -s /vagrant/syllabus/java-syllabus-page/pages /vagrant/syllabus/interactive-syllabus/syllabus/
+cp /vagrant/syllabus/java-syllabus-pages/cours_inginious/configuration.yaml /vagrant/inginious/
+ln -s /vagrant/syllabus/java-syllabus-pages/cours_inginious/tutorial /vagrant/inginious
+
+cp /vagrant/run_inginious /bin/
+cp /vagrant/run_syllabus  /bin/
 
 cd /vagrant/inginious
 
-inginious-webapp --host 0.0.0.0 --port 8888 &
+./run_inginious &
+./run_syllabus &
