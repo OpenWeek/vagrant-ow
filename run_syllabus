@@ -1,0 +1,5 @@
+#! /bin/bash
+
+cd /vagrant/syllabus/interactive-syllabus
+
+python3 syllabus-webapp.py &
