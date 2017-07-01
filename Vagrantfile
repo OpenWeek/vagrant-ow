@@ -13,10 +13,17 @@ Vagrant.configure("2") do |config|
   # Every Vagrant development environment requires a box. You can search for
   # boxes at https://atlas.hashicorp.com/search.
   config.vm.box = "fedora/25-cloud-base"
-  config.vm.provision :shell, path:"bootstrap.sh"
   config.vm.network :forwarded_port, guest:8888, host:8888
   config.vm.network :forwarded_port, guest:5000, host:5000
   config.vm.network :forwarded_port, guest:8081, host:8081
   config.vm.synced_folder ".", "/vagrant", type: "virtualbox"
+  config.vm.provision :shell, path:"bootstrap.sh"
+
+  config.vm.provider "virtualbox" do |vb|
+    vb.name = "openweekwithxfce"
+    vb.customize ["modifyvm", :id, "--memory", "2048"]
+    #vb.customize ["modifyvm", :id, "--cpuexecutioncap", "90"]
+    #vb.customize ["modifyvm", :id, "--cpus", "2"]
+  end
 
 end

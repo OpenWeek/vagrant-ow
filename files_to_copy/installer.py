@@ -386,7 +386,7 @@ class Installer(object, metaclass=abc.ABCMeta):
         #    if self._ask_boolean("Download %s (%s) ?" % (container_name, description), container_name in default_download):
         #        to_download.append("ingi/inginious-c-%s" % container_name)
         #
-        #self.download_containers(to_download, current_options)
+        self.download_containers(to_download, current_options)
 
         #wants = self._ask_boolean("Do you want to manually add some images?", False)
         #while wants:

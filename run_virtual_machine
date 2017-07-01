@@ -1,2 +1,6 @@
 #! /bin/bash
 vagrant plugin install vagrant-vbguest && vagrant up
+
+## Si jamais la vm ne peut pas monter le dossier partager, essayer cette commande, exécutée dans la vm :
+
+# sudo ln -sf /opt/VBoxGuestAdditions-5.1.20/lib/VBoxGuestAdditions/mount.vboxsf /sbin/mount.vboxsf
