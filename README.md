@@ -11,9 +11,7 @@ That's it ! Vous pouvez à présent vous rendre sur votre version d'INGInious et
 
 # Vous ne voulez pas utiliser la VM ? 
 Tout est accessible sur les machines de la salle Intel (une instance INGInious avec Blockly, le repo Syllabus et le repo OW 2017), depuis votre home étudiant. 
-
 ## Comment faire ?
-
 * Connectez-vous sur une machine des salles
 * Lancez la commande
    `prepare_workspace_ow`
@@ -23,3 +21,12 @@ Tout est accessible sur les machines de la salle Intel (une instance INGInious a
    `run_syllabus`
 * le syllabus est à l'adresse <http://localhost:5000>
 * votre version d'INGInious est à l'adresse <http://localhost:8888>
+Les fichiers/dossiers à modifier sont dans le dossier `OpenWeek` de votre home sur la machine de l'Intel.
+
+Les username/password pour se connecter à la webapp vous seront communiqués à l'oral.
+Vous pouvez changer de username/password en modifiant le fichier `configuration.yaml` dans le dossier `inginious_directory`. Il suffit de changer ce morceau du fichier, à votre guise :
+
+```
+users:
+    [[username]]: [[password]]
+```
