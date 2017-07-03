@@ -1,6 +1,6 @@
 #! /bin/bash
 
-cp -r  /vagrant/inginious /home/vagrant/
+cp -r  /vagrant/inginious/* /home/vagrant/inginious/
 cd /home/vagrant/inginious
 
 inginious-webapp --host 0.0.0.0 --port 8888 &
