@@ -3,7 +3,7 @@
 * Télécharger et installer VirtualBox (5.1.22) sur [le site de VirtualBox](https://www.virtualbox.org/wiki/Downloads)
 * se rendre dans un dossier de votre choix et exécuter
 `git clone https://github.com/OpenWeek/vagrant-ow2017.git`
-* se rendre dans le dossier créé et exécuter le fichier `run_virtual_machine` (si vous êtes sous Windows, exécutez simplement les deux commandes écrites dans ce fichier). Ca prendra un peu de temps la première fois.
+* se rendre dans le dossier créé et exécuter le fichier `run_virtual_machine` (si vous êtes sous Windows, exécutez simplement les deux commandes écrites dans ce fichier). Ca prendra un peu de temps la première fois. Comme vous avez 5 minutes à tuer, pourquoi ne pas faire un score incroyable sur [Robot Unicorn Attack](http://www.adultswim.com/games/web/robot-unicorn-attack) ?
 
 That's it ! Vous pouvez à présent vous rendre sur votre version d'INGInious et du syllabus depuis votre ordinateur (pas depuis la vm). 
 * le syllabus est à l'adresse <http://localhost:5000>
