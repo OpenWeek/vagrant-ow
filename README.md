@@ -9,3 +9,17 @@ That's it ! Vous pouvez à présent vous rendre sur votre version d'INGInious et
 * le syllabus est à l'adresse <http://localhost:5000>
 * votre version d'INGInious est à l'adresse <http://localhost:8888>
 
+# Vous ne voulez pas utiliser la VM ? 
+Tout est accessible sur les machines de la salle Intel (une instance INGInious avec Blockly, le repo Syllabus et le repo OW 2017), depuis votre home étudiant. 
+
+## Comment faire ?
+
+* Connectez-vous sur une machine des salles
+* Lancez la commande
+   `prepare_workspace_ow`
+* Lancez la webapp d'INGInious en lançant la commande
+   `run_inginious`
+* Lancez la webapp du syllabus en lançant la commande
+   `run_syllabus`
+* le syllabus est à l'adresse <http://localhost:5000>
+* votre version d'INGInious est à l'adresse <http://localhost:8888>
