@@ -2,4 +2,4 @@
 
 cd /vagrant/syllabus/interactive-syllabus/syllabus
 
-python3 syllabus-webapp.py &
+python3 syllabus-webapp &
