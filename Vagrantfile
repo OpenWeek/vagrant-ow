@@ -23,10 +23,8 @@ Vagrant.configure("2") do |config|
   config.vm.provision :shell, :inline => "/vagrant/run_syllabus &", run: "always"
 
   config.vm.provider "virtualbox" do |vb|
-    vb.name = "openweekwithxfce"
+    vb.name = "OpenWeek2"
     vb.customize ["modifyvm", :id, "--memory", "2048"]
-    #vb.customize ["modifyvm", :id, "--cpuexecutioncap", "90"]
-    #vb.customize ["modifyvm", :id, "--cpus", "2"]
   end
 
 end
