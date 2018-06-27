@@ -12,7 +12,7 @@ Vagrant.configure("2") do |config|
 
   # Every Vagrant development environment requires a box. You can search for
   # boxes at https://atlas.hashicorp.com/search.
-  config.vm.box = "fedora/25-cloud-base"
+  config.vm.box = "fedora/28-cloud-base"
   config.vm.network :forwarded_port, guest:8888, host:8888
   config.vm.network :forwarded_port, guest:5000, host:5000
   config.vm.network :forwarded_port, guest:8081, host:8081
@@ -23,7 +23,7 @@ Vagrant.configure("2") do |config|
   config.vm.provision :shell, :inline => "/vagrant/run_syllabus &", run: "always"
 
   config.vm.provider "virtualbox" do |vb|
-    vb.name = "OpenWeek2"
+    vb.name = "OpenWeek3"
     vb.customize ["modifyvm", :id, "--memory", "2048"]
   end
 

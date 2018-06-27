@@ -3,18 +3,19 @@
 # This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
 # more information about the licensing of this file.
 
-""" Shared methods for the command line tool that installs the frontends """
-import abc
+""" Custom installer for the web app """
+
+import hashlib
 import os
 import tarfile
 import urllib.request
-
 import docker
-from docker.utils import kwargs_from_env
+
 from gridfs import GridFS
 from pymongo import MongoClient
 
 import inginious.common.custom_yaml as yaml
+
 
 HEADER = '\033[95m'
 INFO = '\033[94m'
@@ -29,13 +30,15 @@ DOC = '\033[39m'
 BACKGROUND_RED = '\033[101m'
 
 
-class Installer(object, metaclass=abc.ABCMeta):
+class Installer:
+    """ Custom installer for the WebApp frontend """
+
     def __init__(self, config_path=None):
         self._config_path = config_path
 
-    #######################################
-    #          Display functions          #
-    #######################################
+        #######################################
+        #          Display functions          #
+        #######################################
 
     def _display_header(self, title):
         """ Displays an header in the console """
@@ -67,6 +70,9 @@ class Installer(object, metaclass=abc.ABCMeta):
 
     def _ask_with_default(self, question, default):
         default = str(default)
+        #answer = input(DOC + UNDERLINE + question + " [" + default + "]:" + ENDC + " ")
+        #if answer == "":
+        #    answer = default
         return default
 
     def _ask_boolean(self, question, default):
@@ -78,9 +84,9 @@ class Installer(object, metaclass=abc.ABCMeta):
                 return False
             self._display_question("Please answer 'yes' or 'no'.")
 
-    #######################################
-    #            Main function            #
-    #######################################
+            #######################################
+            #            Main function            #
+            #######################################
 
     def run(self):
         """ Run the installator """
@@ -93,15 +99,17 @@ class Installer(object, metaclass=abc.ABCMeta):
                 self._display_info("Backend chosen: local. Testing the configuration.")
                 options = self._ask_local_config()
                 if not self.test_local_docker_conf():
-                    self._display_error("An error occurred while testing the configuration. Please make sure you are able do run `docker info` in "
-                                        "your command line, and environment parameters like DOCKER_HOST are correctly set.")
+                    self._display_error(
+                        "An error occurred while testing the configuration. Please make sure you are able do run `docker info` in "
+                        "your command line, and environment parameters like DOCKER_HOST are correctly set.")
                     if self._ask_boolean("Would you like to continue anyway?", False):
                         break
                 else:
                     break
             else:
-                self._display_warning("Backend chosen: manual. As it is a really advanced feature, you will have to configure it yourself in "
-                                      "the configuration file, at the end of the setup process.")
+                self._display_warning(
+                    "Backend chosen: manual. As it is a really advanced feature, you will have to configure it yourself in "
+                    "the configuration file, at the end of the setup process.")
                 options = {"backend": backend}
                 break
 
@@ -120,7 +128,31 @@ class Installer(object, metaclass=abc.ABCMeta):
         misc_opt = self.configure_misc()
         options.update(misc_opt)
 
-        options = self.frontend_specific_configuration(options)
+        database = self.try_mongodb_opts(options["mongo_opt"]["host"], options["mongo_opt"]["database"])
+
+        self._display_header("BACKUP DIRECTORY")
+        backup_directory_opt = self.configure_backup_directory()
+        options.update(backup_directory_opt)
+
+        self._display_header("AUTHENTIFICATION")
+        auth_opts = self.configure_authentication(database)
+        options.update(auth_opts)
+
+        self._display_info("You may want to add additional plugins to the configuration file.")
+
+        self._display_header("REMOTE DEBUGGING - IN BROWSER")
+        self._display_info(
+            "If you want to activate the remote debugging of task in the users' browser, you have to install separately "
+            "INGInious-xterm, which is available on Github, according to the parameters you have given for the hostname and the "
+            "port range given in the configuration of the remote debugging.")
+        self._display_info(
+            "You can leave the following question empty to disable this feature; remote debugging will still be available, "
+            "but not in the browser.")
+        webterm = self._ask_with_default(
+            "Please indicate the link to your installation of INGInious-xterm (for example: "
+            "https://your-hostname.com:8080).", "")
+        if webterm != "":
+            options["webterm"] = webterm
 
         self._display_header("END")
         file_dir = self._config_path or os.path.join(os.getcwd(), self.configuration_filename())
@@ -130,21 +162,6 @@ class Installer(object, metaclass=abc.ABCMeta):
         except:
             self._display_error("Cannot write the configuration file on disk. Here is the content of the file")
             print(yaml.dump(options))
-
-    @abc.abstractmethod
-    def frontend_specific_configuration(self, options):
-        """ Modify the options for a specific frontend. Should return the new option dict """
-        return options
-
-    @abc.abstractmethod
-    def configuration_filename(self):
-        """ Returns the name of the configuration file """
-        return "configuration.yaml"
-
-    @abc.abstractmethod
-    def support_remote_debugging(self):
-        """ Returns True if the frontend supports remote debugging, False else"""
-        return False
 
     #######################################
     #       Docker configuration          #
@@ -156,8 +173,9 @@ class Installer(object, metaclass=abc.ABCMeta):
 
         # Concurrency
         while True:
-            concurrency = self._ask_with_default("Maximum concurrency (number of tasks running simultaneously). Leave it empty to use the number of "
-                                                 "CPU of your host.", "")
+            concurrency = self._ask_with_default(
+                "Maximum concurrency (number of tasks running simultaneously). Leave it empty to use the number of "
+                "CPU of your host.", "")
             if concurrency == "":
                 break
 
@@ -175,12 +193,14 @@ class Installer(object, metaclass=abc.ABCMeta):
             break
 
         # Debug hostname
-        hostname = self._ask_with_default("What is the external hostname/address of your machine? You can leave this empty and let INGInious "
-                                        "autodetect it.", "")
+        hostname = self._ask_with_default(
+            "What is the external hostname/address of your machine? You can leave this empty and let INGInious "
+            "autodetect it.", "")
         if hostname != "":
             options["local-config"]["debug_host"] = hostname
-        self._display_info("You can now enter the port range for the remote debugging feature of INGInious. Please verify that these "
-                                        "ports are open in your firewall. You can leave this parameters empty, the default is 64100-64200")
+        self._display_info(
+            "You can now enter the port range for the remote debugging feature of INGInious. Please verify that these "
+            "ports are open in your firewall. You can leave this parameters empty, the default is 64100-64200")
 
         # Debug port range
         port_range = None
@@ -192,7 +212,7 @@ class Installer(object, metaclass=abc.ABCMeta):
                 except:
                     self._display_error("Invalid number")
                     continue
-                end_port = self._ask_with_default("End of the range", str(start_port+100))
+                end_port = self._ask_with_default("End of the range", str(start_port + 100))
                 try:
                     end_port = int(end_port)
                 except:
@@ -201,7 +221,7 @@ class Installer(object, metaclass=abc.ABCMeta):
                 if start_port > end_port:
                     self._display_error("Invalid range")
                     continue
-                port_range = str(start_port)+"-"+str(end_port)
+                port_range = str(start_port) + "-" + str(end_port)
             else:
                 break
         if port_range != None:
@@ -212,7 +232,7 @@ class Installer(object, metaclass=abc.ABCMeta):
     def test_local_docker_conf(self):
         """ Test to connect to a local Docker daemon """
         try:
-            docker_connection = docker.Client(**kwargs_from_env())
+            docker_connection = docker.from_env()
         except Exception as e:
             self._display_error("- Unable to connect to Docker. Error was %s" % str(e))
             return False
@@ -231,15 +251,17 @@ class Installer(object, metaclass=abc.ABCMeta):
 
     def ask_backend(self):
         """ Ask the user to choose the backend """
-        response = self._ask_boolean("Do you have a local docker daemon (on Linux), do you use docker-machine via a local machine, or do you use "
-                                     "Docker for macOS?", True)
-        if(response):
+        response = self._ask_boolean(
+            "Do you have a local docker daemon (on Linux), do you use docker-machine via a local machine, or do you use "
+            "Docker for macOS?", True)
+        if (response):
             self._display_info("If you use docker-machine on macOS, please see "
                                "http://inginious.readthedocs.io/en/latest/install_doc/troubleshooting.html")
             return "local"
         else:
-            self._display_info("You will have to run inginious-backend and inginious-agent yourself. Please run the commands without argument "
-                               "and/or read the documentation for more info")
+            self._display_info(
+                "You will have to run inginious-backend and inginious-agent yourself. Please run the commands without argument "
+                "and/or read the documentation for more info")
             return self._display_question("Please enter the address of your backend")
 
     #######################################
@@ -252,21 +274,21 @@ class Installer(object, metaclass=abc.ABCMeta):
             mongo_client = MongoClient(host=host)
         except Exception as e:
             self._display_warning("Cannot connect to MongoDB on host %s: %s" % (host, str(e)))
-            return False
+            return None
 
         try:
             database = mongo_client[database_name]
         except Exception as e:
             self._display_warning("Cannot access database %s: %s" % (database_name, str(e)))
-            return False
+            return None
 
         try:
             GridFS(database)
         except Exception as e:
             self._display_warning("Cannot access gridfs %s: %s" % (database_name, str(e)))
-            return False
+            return None
 
-        return True
+        return database
 
     def configure_mongodb(self):
         """ Configure MongoDB """
@@ -277,12 +299,14 @@ class Installer(object, metaclass=abc.ABCMeta):
 
         should_ask = True
         if self.try_mongodb_opts(host, database_name):
-            should_ask = self._ask_boolean("Successfully connected to MongoDB. Do you want to edit the configuration anyway?", False)
+            should_ask = self._ask_boolean(
+                "Successfully connected to MongoDB. Do you want to edit the configuration anyway?", False)
         else:
             self._display_info("Cannot guess configuration for MongoDB.")
 
         while should_ask:
-            self._display_question("Please enter the MongoDB host. If you need to enter a password, here is the syntax:")
+            self._display_question(
+                "Please enter the MongoDB host. If you need to enter a password, here is the syntax:")
             self._display_question("mongodb://USERNAME:PASSWORD@HOST:PORT/AUTHENTIFICATION_DATABASE")
             host = self._ask_with_default("MongoDB host", host)
             database_name = self._ask_with_default("Database name", database_name)
@@ -301,8 +325,9 @@ class Installer(object, metaclass=abc.ABCMeta):
 
     def configure_task_directory(self):
         """ Configure task directory """
-        self._display_question("Please choose a directory in which to store the course/task files. By default, the tool will put them in the current "
-                               "directory")
+        self._display_question(
+            "Please choose a directory in which to store the course/task files. By default, the tool will put them in the current "
+            "directory")
         task_directory = None
         while task_directory is None:
             task_directory = self._ask_with_default("Task directory", ".")
@@ -313,9 +338,10 @@ class Installer(object, metaclass=abc.ABCMeta):
 
         if os.path.exists(task_directory):
             self._display_question("Demonstration tasks can be downloaded to let you discover INGInious.")
-            if self._ask_boolean("Would you like to download them ?", False):
+            if self._ask_boolean("Would you like to download them ?", True):
                 try:
-                    filename, _ = urllib.request.urlretrieve("https://api.github.com/repos/UCL-INGI/INGInious-demo-tasks/tarball")
+                    filename, _ = urllib.request.urlretrieve(
+                        "https://api.github.com/repos/UCL-INGI/INGInious-demo-tasks/tarball")
                     with tarfile.open(filename, mode="r:gz") as thetarfile:
                         members = thetarfile.getmembers()
                         commonpath = os.path.commonpath([tarinfo.name for tarinfo in members])
@@ -342,7 +368,7 @@ class Installer(object, metaclass=abc.ABCMeta):
         if current_options["backend"] == "local":
             self._display_info("Connecting to the local Docker daemon...")
             try:
-                docker_connection = docker.Client(**kwargs_from_env())
+                docker_connection = docker.from_env()
             except:
                 self._display_error("Cannot connect to local Docker daemon. Skipping download.")
                 return
@@ -350,12 +376,13 @@ class Installer(object, metaclass=abc.ABCMeta):
             for image in to_download:
                 try:
                     self._display_info("Downloading image %s. This can take some time." % image)
-                    docker_connection.pull(image + ":latest")
+                    docker_connection.images.pull(image + ":latest")
                 except Exception as e:
                     self._display_error("An error occurred while pulling the image: %s." % str(e))
         else:
-            self._display_warning("This installation tool does not support the backend configuration directly, if it's not local. You will have to "
-                                  "pull the images by yourself. Here is the list: %s" % str(to_download))
+            self._display_warning(
+                "This installation tool does not support the backend configuration directly, if it's not local. You will have to "
+                "pull the images by yourself. Here is the list: %s" % str(to_download))
 
     def configure_containers(self, current_options):
         """ Configures the container dict """
@@ -375,15 +402,16 @@ class Installer(object, metaclass=abc.ABCMeta):
 
         default_download = ["default"]
 
-        self._display_question("The tool will now propose to download some base container image for multiple languages.")
-        self._display_question("Please note that the download of these images can take a lot of time, so choose only the images you need")
+        self._display_question(
+            "The tool will now propose to download some base container image for multiple languages.")
+        self._display_question(
+            "Please note that the download of these images can take a lot of time, so choose only the images you need")
 
         to_download = []
         to_download.append("ingi/inginious-c-default")
-        to_download.append("ingi/inginious-c-java7")
-        to_download.append("ingi/inginious-c-java8scala")
         #for container_name, description in containers:
-        #    if self._ask_boolean("Download %s (%s) ?" % (container_name, description), container_name in default_download):
+        #    if self._ask_boolean("Download %s (%s) ?" % (container_name, description),
+        #                         container_name in default_download):
         #        to_download.append("ingi/inginious-c-%s" % container_name)
         #
         self.download_containers(to_download, current_options)
@@ -403,7 +431,94 @@ class Installer(object, metaclass=abc.ABCMeta):
     def configure_misc(self):
         """ Configure various things """
         options = {}
-        options["use_minified_js"] = self._ask_boolean("Use minified javascript? (Useful in production, but should be disabled in dev environment)",
-                                                       True)
+        options["use_minified_js"] = self._ask_boolean(
+            "Use minified javascript? (Useful in production, but should be disabled in dev environment)",
+            True)
 
         return options
+
+    def configure_backup_directory(self):
+        """ Configure backup directory """
+        self._display_question("Please choose a directory in which to store the backup files. By default, the tool will them in the current "
+                               "directory")
+        backup_directory = None
+        while backup_directory is None:
+            backup_directory = self._ask_with_default("Backup directory", ".")
+            if not os.path.exists(backup_directory):
+                self._display_error("Path does not exists")
+                if self._ask_boolean("Would you like to retry?", True):
+                    backup_directory = None
+
+        return {"backup_directory": backup_directory}
+
+    def ldap_plugin(self):
+        """ Configures the LDAP plugin """
+        name = self._ask_with_default("Authentication method name (will be displayed on the login page)", "LDAP")
+        prefix = self._ask_with_default("Prefix to append to the username before db storage. Usefull when you have more than one auth method with "
+                                        "common usernames.", "")
+        ldap_host = self._ask_with_default("LDAP Host", "ldap.your.domain.com")
+
+        encryption = 'none'
+        while True:
+            encryption = self._ask_with_default("Encryption (either 'ssl', 'tls', or 'none')", 'none')
+            if encryption not in ['none', 'ssl', 'tls']:
+                self._display_error("Invalid value")
+            else:
+                break
+
+        base_dn = self._ask_with_default("Base DN", "ou=people,c=com")
+        request = self._ask_with_default("Request to find a user. '{}' will be replaced by the username", "uid={}")
+        require_cert = self._ask_boolean("Require certificate validation?", encryption is not None)
+
+        return {
+            "plugin_module": "inginious.frontend.plugins.auth.ldap_auth",
+            "host": ldap_host,
+            "encryption": encryption,
+            "base_dn": base_dn,
+            "request": request,
+            "prefix": prefix,
+            "name": name,
+            "require_cert": require_cert
+        }
+
+    def configure_authentication(self, database):
+        """ Configure the authentication """
+        options = {"plugins": [], "superadmins": []}
+
+        self._display_info("We will now create the first user.")
+
+        username = self._ask_with_default("Enter the login of the superadmin", "superadmin")
+        realname = self._ask_with_default("Enter the name of the superadmin", "INGInious SuperAdmin")
+        email = self._ask_with_default("Enter the email address of the superadmin", "superadmin@inginious.org")
+        password = self._ask_with_default("Enter the password of the superadmin", "superadmin")
+
+        database.users.insert({"username": username,
+                               "realname": realname,
+                               "email": email,
+                               "password": hashlib.sha512(password.encode("utf-8")).hexdigest(),
+                               "bindings": {},
+                               "language": "en"})
+
+        options["superadmins"].append(username)
+
+        while True:
+            if not self._ask_boolean("Would you like to add another auth method?", False):
+                break
+
+            self._display_info("You can choose an authentication plugin between:")
+            self._display_info("- 1. LDAP auth plugin. This plugin allows to connect to a distant LDAP host.")
+
+            plugin = self._ask_with_default("Enter the corresponding number to your choice", '1')
+            if plugin not in ['1']:
+                continue
+            elif plugin == '1':
+                options["plugins"].append(self.ldap_plugin())
+        return options
+
+    def configuration_filename(self):
+        """ Returns the name of the configuration file """
+        return "configuration.yaml"
+
+    def support_remote_debugging(self):
+        """ Returns True if the frontend supports remote debugging, False else"""
+        return True

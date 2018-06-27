@@ -3,8 +3,7 @@
 sed -i 's/SELINUX=enforcing/SELINUX=disabled/g' /etc/selinux/config 
 
 #Inginious install
-curl -fsSL https://get.docker.com/ | sh #This will setup the Docker repo
-dnf install -y git mongodb mongodb-server gcc libtidy python3 python3-pip python3-devel zeromq-devel redhat-rpm-config
+dnf install -y git mongodb mongodb-server gcc libtidy python3 python3-pip python3-devel zeromq-devel redhat-rpm-config docker xmlsec1-openssl python3-xmlsec
 
 systemctl start mongod
 systemctl enable mongod
@@ -14,25 +13,26 @@ systemctl enable docker
 pip3 install --upgrade pip
 
 # for syllabus webapp
-pip3 install flask
+/usr/local/bin/pip3 install flask
 # for rst syntax highlighting
-pip3 install pygments
+/usr/local/bin/pip3 install pygments
 
-pip3 install --upgrade git+https://github.com/fthuin/INGInious
+/usr/local/bin/pip3 install --upgrade git+https://github.com/UCL-INGI/INGInious
 
 # Changing inginious configuration file for webapp
-cp /vagrant/files_to_copy/installer.py /usr/lib/python3.5/site-packages/inginious/frontend/common/
+cp /vagrant/files_to_copy/installer.py /usr/local/lib/python3.6/site-packages/inginious/frontend/
 
 mkdir -p /vagrant/inginious && cd /vagrant/inginious
-inginious-install webapp
+inginious-install
 
 # Downloading syllabus
 mkdir -p /vagrant/syllabus/ && cd /vagrant/syllabus
-git clone https://github.com/OpenWeek/java-syllabus-pages.git || true
+git clone https://github.com/tdba/CS1-Python-Syllabus-Pages.git || true
 git clone https://github.com/OpenWeek/interactive-syllabus.git || true
-ln -s -f /vagrant/syllabus/java-syllabus-pages/pages /vagrant/syllabus/interactive-syllabus/syllabus/ || true
-cp -f /vagrant/syllabus/java-syllabus-pages/cours_inginious/configuration.yaml /vagrant/inginious/ || true
-ln -s -f /vagrant/syllabus/java-syllabus-pages/cours_inginious/tutorial /vagrant/inginious || true
+cd interactive-syllabus
+cp -r /vagrant/syllabus/CS1-Python-Syllabus-Pages /vagrant/syllabus/interactive-syllabus/pages
+cp /vagrant/syllabus/interactive-syllabus/configuration_default.yaml /vagrant/syllabus/interactive-syllabus/configuration.yaml
+sudo pip3 install .
 
 chmod +x /vagrant/run_inginious
 chmod +x /vagrant/run_syllabus
@@ -44,5 +44,5 @@ cp -f /vagrant/files_to_copy/syllabus_config.py /vagrant/syllabus/interactive-sy
 
 cp -r  /vagrant/inginious /home/vagrant/
 
-sudo run_inginious &
 sudo run_syllabus &
+sudo run_inginious &
