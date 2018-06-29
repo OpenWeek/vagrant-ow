@@ -10,6 +10,9 @@ That's it ! Vous pouvez à présent vous rendre sur votre version d'INGInious et
 * votre version d'INGInious est à l'adresse <http://localhost:8888>
 
 # Vous ne voulez pas utiliser la VM ? 
+
+**ATTENTION** Cette section n'est pas à jour, elle date de l'édition 2017.
+
 Tout est accessible sur les machines de la salle Intel (une instance INGInious avec Blockly, le repo Syllabus et le repo OW 2017), depuis votre home étudiant. 
 ## Comment faire ?
 * Connectez-vous sur une machine des salles

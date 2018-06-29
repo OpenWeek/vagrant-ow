@@ -23,7 +23,7 @@ pip3 install --upgrade pip
 cp /vagrant/files_to_copy/installer.py /usr/local/lib/python3.6/site-packages/inginious/frontend/
 
 mkdir -p /vagrant/inginious && cd /vagrant/inginious
-inginious-install
+sudo inginious-install
 
 # Downloading syllabus
 mkdir -p /vagrant/syllabus/ && cd /vagrant/syllabus
@@ -40,9 +40,8 @@ sudo cp /vagrant/run_inginious /usr/sbin/ || true
 sudo cp /vagrant/run_syllabus  /usr/sbin/ || true
 cp /vagrant/files_to_copy/.bashrc /home/vagrant/.bashrc
 source /home/vagrant/.bashrc
-cp -f /vagrant/files_to_copy/syllabus_config.py /vagrant/syllabus/interactive-syllabus/syllabus/config.py
 
 cp -r  /vagrant/inginious /home/vagrant/
 
-sudo run_syllabus &
+sudo run_syllabus > /dev/null &
 sudo run_inginious &
