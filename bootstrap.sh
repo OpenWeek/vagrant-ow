@@ -18,12 +18,16 @@ pip3 install --upgrade pip
 /usr/local/bin/pip3 install pygments
 
 /usr/local/bin/pip3 install --upgrade git+https://github.com/UCL-INGI/INGInious
+# Blockly plugin
+/usr/local/bin/pip3 install git+https://github.com/UCL-INGI/INGInious-problems-blockly
 
 # Changing inginious configuration file for webapp
 cp /vagrant/files_to_copy/installer.py /usr/local/lib/python3.6/site-packages/inginious/frontend/
 
 mkdir -p /vagrant/inginious && cd /vagrant/inginious
 sudo inginious-install
+cp /vagrant/files_to_copy/ingi_config.yaml ./configuration.yaml
+
 git clone https://github.com/tdba/CS1-Python
 
 # Downloading syllabus
