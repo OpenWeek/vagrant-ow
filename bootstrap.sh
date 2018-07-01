@@ -24,13 +24,14 @@ cp /vagrant/files_to_copy/installer.py /usr/local/lib/python3.6/site-packages/in
 
 mkdir -p /vagrant/inginious && cd /vagrant/inginious
 sudo inginious-install
+git clone https://github.com/tdba/CS1-Python
 
 # Downloading syllabus
 mkdir -p /vagrant/syllabus/ && cd /vagrant/syllabus
-git clone https://github.com/tdba/CS1-Python-Syllabus-Pages.git || true
+git clone https://github.com/tdba/CS1-Python-Ref-Syllabus || true
 git clone https://github.com/OpenWeek/interactive-syllabus.git || true
 cd interactive-syllabus
-cp -r /vagrant/syllabus/CS1-Python-Syllabus-Pages /vagrant/syllabus/interactive-syllabus/pages
+cp -r /vagrant/syllabus/CS1-Python-Ref-Syllabus /vagrant/syllabus/interactive-syllabus/pages
 cp /vagrant/syllabus/interactive-syllabus/configuration_default.yaml /vagrant/syllabus/interactive-syllabus/configuration.yaml
 sudo pip3 install .
 
