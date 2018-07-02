@@ -32,10 +32,10 @@ git clone https://github.com/tdba/CS1-Python
 
 # Downloading syllabus
 mkdir -p /vagrant/syllabus/ && cd /vagrant/syllabus
-git clone https://github.com/tdba/CS1-Python-Ref-Syllabus || true
+git clone https://github.com/tdba/FDP-Python-Syllabus-Pages || true
 git clone https://github.com/OpenWeek/interactive-syllabus.git || true
 cd interactive-syllabus
-cp -r /vagrant/syllabus/CS1-Python-Ref-Syllabus /vagrant/syllabus/interactive-syllabus/pages
+cp -r /vagrant/syllabus/FDP-Python-Syllabus-Pages /vagrant/syllabus/interactive-syllabus/pages
 cp /vagrant/syllabus/interactive-syllabus/configuration_default.yaml /vagrant/syllabus/interactive-syllabus/configuration.yaml
 sudo pip3 install .
 
