@@ -17,9 +17,7 @@ pip3 install --upgrade pip
 # for rst syntax highlighting
 /usr/local/bin/pip3 install pygments
 
-/usr/local/bin/pip3 install --upgrade git+https://github.com/UCL-INGI/INGInious@v0.6
-# Blockly plugin
-/usr/local/bin/pip3 install git+https://github.com/UCL-INGI/INGInious-problems-blockly
+/usr/local/bin/pip3 install --upgrade git+https://github.com/UCL-INGI/INGInious@v0.5
 
 # Changing inginious configuration file for webapp
 cp /vagrant/files_to_copy/installer.py /usr/local/lib/python3.6/site-packages/inginious/frontend/

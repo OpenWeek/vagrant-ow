@@ -4,8 +4,7 @@ local-config: {}
 mongo_opt:
     database: INGInious
     host: localhost
-plugins:
-    - plugin_module: "inginious-problems-blockly"
+plugins: []
 superadmins:
 - superadmin
 tasks_directory: .
