@@ -16,6 +16,7 @@ pip3 install --upgrade pip
 /usr/local/bin/pip3 install flask
 # for rst syntax highlighting
 /usr/local/bin/pip3 install pygments
+/usr/local/bin/pip3 install sphinxcontrib-websupport
 
 /usr/local/bin/pip3 install --upgrade git+https://github.com/UCL-INGI/INGInious@v0.5
 
@@ -34,7 +35,7 @@ git clone https://github.com/tdba/FDP-Python-Syllabus-Pages || true
 git clone https://github.com/OpenWeek/interactive-syllabus.git || true
 cd interactive-syllabus
 cp -r /vagrant/syllabus/FDP-Python-Syllabus-Pages /vagrant/syllabus/interactive-syllabus/pages
-cp /vagrant/syllabus/interactive-syllabus/configuration_default.yaml /vagrant/syllabus/interactive-syllabus/configuration.yaml
+cp /vagrant/files_to_copy/syllabus_config.yaml /vagrant/syllabus/interactive-syllabus/configuration.yaml
 sudo pip3 install .
 
 chmod +x /vagrant/run_inginious
